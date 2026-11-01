@@ -5,7 +5,8 @@
 - **Frontend:** React 19, Liquid Glass + Material Design 3, xterm.js.
 - **LLM Engine:** SSE stream parsers (OpenAI, Anthropic, DeepSeek, Google Gemini, Groq, Mistral, xAI).
 - **Upstream:** `TulenTulenivich/CloseCode:main`
-- **Fork:** `nanodevmc/CloseCode` (ветка `audit-fixes` -> PR #1).
+- **Fork:** `nanodevmc/CloseCode` (ветка `main` с AgyUnlocker, Google Pro/Ultra, Remote Control, Portable v0.2.0).
+- **Upstream PRs:** PR #2 открыт (https://github.com/TulenTulenivich/CloseCode/pull/2 — 50 багфиксов, 29 файлов, +443/-111).
 
 ## 2. Что реализовано
 - **50 багфиксов:** ENOENT в инструментах, рекурсивный глоббинг `**`, WHATWG SSE пробелы, склейка сообщений Anthropic, стриминг `reasoning_content`, атомарные сохранения настроек/сессий.
