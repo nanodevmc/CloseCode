@@ -5,7 +5,7 @@
 - **Frontend:** React 19, Liquid Glass + Material Design 3, xterm.js.
 - **LLM Engine:** SSE stream parsers (OpenAI, Anthropic, DeepSeek, Google Gemini, Groq, Mistral, xAI).
 - **Upstream:** `TulenTulenivich/CloseCode:main`
-- **Fork:** `nanodevmc/CloseCode` (ветка `main` с AgyUnlocker, Google Pro/Ultra, Remote Control, Portable v0.2.0).
+- **Fork:** `nanodevmc/CloseCode` (ветка `main` с AgyUnlocker undici proxy, Google Pro/Ultra с авто-обновлением токена, Remote Control, Nano Power Pack UI, Portable v0.2.1).
 - **Upstream PRs:** PR #2 открыт (https://github.com/TulenTulenivich/CloseCode/pull/2 — 50 багфиксов, 29 файлов, +443/-111).
 
 ## 2. Что реализовано
