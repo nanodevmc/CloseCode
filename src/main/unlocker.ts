@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import http from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
+import { Agent, ProxyAgent, setGlobalDispatcher } from 'undici'
 import type { ProviderView, SettingsView } from '../shared/types'
 import { getSettingsView, saveSettings, setActiveModel } from './settings'
 
@@ -19,17 +20,53 @@ export interface UnlockerStatus {
 const DEFAULT_UNLOCKER_PORT = 53129
 let unlockerEnabled = true
 
+function getLocalAgyCreds(): { clientId: string; clientSecret: string } | null {
+  try {
+    const home = os.homedir()
+    const agyBin = path.join(home, 'AppData', 'Local', 'agy', 'bin', 'agy.exe')
+    if (fs.existsSync(agyBin)) {
+      const data = fs.readFileSync(agyBin, 'latin1')
+      const idMatch = data.match(/[0-9]+-[a-z0-9_]+\.apps\.googleusercontent\.com/)
+      const secMatch = data.match(/GOCSPX-[a-zA-Z0-9_\-]+/)
+      if (idMatch && secMatch) {
+        return {
+          clientId: idMatch[0],
+          clientSecret: secMatch[0].replace(/(decoding|field|https)$/, '')
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null
+}
+
 export function isUnlockerEnabled(): boolean {
   return unlockerEnabled
 }
 
 export function applyUnlockerProxy(): void {
+  const proxyUrl = `http://127.0.0.1:${DEFAULT_UNLOCKER_PORT}`
   if (unlockerEnabled) {
-    process.env.HTTPS_PROXY = `http://127.0.0.1:${DEFAULT_UNLOCKER_PORT}`
-    process.env.AG_LS_PROXY = `http://127.0.0.1:${DEFAULT_UNLOCKER_PORT}`
+    try {
+      setGlobalDispatcher(new ProxyAgent({ uri: proxyUrl }))
+    } catch {
+      // ignore
+    }
+    process.env.HTTPS_PROXY = proxyUrl
+    process.env.HTTP_PROXY = proxyUrl
+    process.env.ALL_PROXY = proxyUrl
+    process.env.AG_LS_PROXY = proxyUrl
     process.env.NO_PROXY = 'localhost,127.0.0.1'
   } else {
+    try {
+      setGlobalDispatcher(new Agent())
+    } catch {
+      // ignore
+    }
     delete process.env.HTTPS_PROXY
+    delete process.env.HTTP_PROXY
+    delete process.env.ALL_PROXY
     delete process.env.AG_LS_PROXY
   }
 }
@@ -60,6 +97,48 @@ export async function checkUnlockerAlive(port = DEFAULT_UNLOCKER_PORT): Promise<
   })
 }
 
+export async function refreshGoogleSessionIfNeeded(): Promise<string | null> {
+  try {
+    const creds = getLocalAgyCreds()
+    if (!creds) return null
+
+    const home = os.homedir()
+    const tokenFile = path.join(home, '.gemini', 'jetski-standalone-oauth-token')
+    if (!fs.existsSync(tokenFile)) return null
+
+    const parsed = JSON.parse(fs.readFileSync(tokenFile, 'utf-8')) as Record<string, unknown>
+    const tokObj = (parsed.token && typeof parsed.token === 'object' ? parsed.token : {}) as Record<string, unknown>
+    const refreshToken = (tokObj.refresh_token as string) || null
+    if (!refreshToken) return null
+
+    const body = new URLSearchParams({
+      client_id: creds.clientId,
+      client_secret: creds.clientSecret,
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken
+    })
+
+    const resp = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString()
+    })
+
+    if (resp.ok) {
+      const data = (await resp.json()) as Record<string, unknown>
+      if (typeof data.access_token === 'string') {
+        tokObj.access_token = data.access_token
+        parsed.token = tokObj
+        fs.writeFileSync(tokenFile, JSON.stringify(parsed, null, 2), 'utf-8')
+        return data.access_token
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null
+}
+
 export function getAntigravityGoogleSession(): {
   token: string
   email: string | null
@@ -70,9 +149,18 @@ export function getAntigravityGoogleSession(): {
     const tokenFile = path.join(home, '.gemini', 'jetski-standalone-oauth-token')
     if (fs.existsSync(tokenFile)) {
       const parsed = JSON.parse(fs.readFileSync(tokenFile, 'utf-8')) as Record<string, unknown>
-      if (parsed?.token) {
+      let tokStr: string | null = null
+      if (parsed?.token && typeof parsed.token === 'object') {
+        const obj = parsed.token as Record<string, unknown>
+        if (typeof obj.access_token === 'string') {
+          tokStr = obj.access_token
+        }
+      } else if (typeof parsed?.token === 'string') {
+        tokStr = parsed.token
+      }
+      if (tokStr) {
         return {
-          token: String(parsed.token),
+          token: tokStr,
           email: parsed.id_token_email ? String(parsed.id_token_email) : null,
           authMethod: parsed.auth_method ? String(parsed.auth_method) : 'consumer'
         }
@@ -81,9 +169,9 @@ export function getAntigravityGoogleSession(): {
     const credsFile = path.join(home, '.gemini', 'oauth_creds.json')
     if (fs.existsSync(credsFile)) {
       const parsed = JSON.parse(fs.readFileSync(credsFile, 'utf-8')) as Record<string, unknown>
-      if (parsed?.access_token) {
+      if (typeof parsed?.access_token === 'string') {
         return {
-          token: String(parsed.access_token),
+          token: parsed.access_token,
           email: null,
           authMethod: 'oauth'
         }
@@ -112,7 +200,8 @@ export async function getUnlockerStatus(): Promise<UnlockerStatus> {
   }
 }
 
-export function importGoogleAntigravityProvider(): SettingsView {
+export async function importGoogleAntigravityProvider(): Promise<SettingsView> {
+  await refreshGoogleSessionIfNeeded()
   const session = getAntigravityGoogleSession()
   if (!session?.token) {
     throw new Error('Google OAuth сессия Antigravity не найдена в ~/.gemini')

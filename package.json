@@ -67,6 +67,7 @@
     "vite": "^8.3.5"
   },
   "dependencies": {
-    "@lydell/node-pty": "^1.2.0-beta.18"
+    "@lydell/node-pty": "^1.2.0-beta.18",
+    "undici": "^7.19.2"
   }
 }

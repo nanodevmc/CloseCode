@@ -1096,6 +1096,19 @@ export default function App(): ReactNode {
                     ready={agentReady}
                     context={context}
                     onOpenSettings={() => setSettingsOpen(true)}
+                    onOpenUnlocker={() => setUnlockerOpen(true)}
+                    onImportGoogle={async () => {
+                      try {
+                        await window.closecode.importAntigravityGoogle()
+                        await hydrateProject()
+                        setToast('Google Gemini Pro/Ultra успешно подключён из Antigravity!')
+                      } catch (err) {
+                        setToast(`Ошибка импорта: ${errorText(err)}`)
+                      }
+                    }}
+                    onAddDeepSeek={() => {
+                      setSettingsOpen(true)
+                    }}
                   />
                 )
               ) : (

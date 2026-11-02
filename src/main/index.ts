@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { app, BrowserWindow, desktopCapturer, dialog, ipcMain, screen, shell } from 'electron'
+import { app, BrowserWindow, desktopCapturer, dialog, ipcMain, screen, session, shell } from 'electron'
 import { spawn as spawnPty, type IPty } from '@lydell/node-pty'
 import type { Lang } from '../shared/i18n'
 import { isImageModel, normalizeEffort, reasoningEffortFor, thinkingBudgetFor } from '../shared/modelNames'
@@ -1405,8 +1405,8 @@ function registerIpc(): void {
     setUnlockerEnabled(Boolean(enabled))
     return getUnlockerStatus()
   })
-  ipcMain.handle('unlocker:import-google', () => {
-    const s = importGoogleAntigravityProvider()
+  ipcMain.handle('unlocker:import-google', async () => {
+    const s = await importGoogleAntigravityProvider()
     emitContext()
     emitLoad()
     return s
@@ -1440,6 +1440,12 @@ if (!hasLock) {
   app.whenReady().then(() => {
     app.setAppUserModelId('com.closecode.app')
     applyUnlockerProxy()
+    if (session?.defaultSession) {
+      session.defaultSession.setProxy({
+        proxyRules: 'http://127.0.0.1:53129',
+        proxyBypassRules: 'localhost,127.0.0.1'
+      }).catch(() => {})
+    }
     if (process.argv.includes('--remote-control')) {
       void remoteControl.start(4242)
     }

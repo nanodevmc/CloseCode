@@ -300,7 +300,11 @@ export async function runAgent(options: AgentRunOptions): Promise<void> {
         errText.includes('rate_limit') ||
         errText.includes('insufficient_quota') ||
         errText.includes('limit reached') ||
-        errText.includes('credit')
+        errText.includes('credit') ||
+        errText.includes('forbidden') ||
+        errText.includes('403') ||
+        errText.includes('unauthorized') ||
+        errText.includes('401')
       if (isQuota && options.onRotateAccount && !signal.aborted) {
         const rotated = await options.onRotateAccount()
         if (rotated?.switched) {

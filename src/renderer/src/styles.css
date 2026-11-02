@@ -7897,3 +7897,131 @@ textarea.input {
 .hotkey-tip strong {
   color: var(--accent);
 }
+
+
+/* Nano Power Pack & Welcome Banner */
+.nano-power-box {
+  margin-top: 18px;
+  padding: 14px 16px;
+  background: var(--panel, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nano-power-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nano-power-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--accent, #4f6ef7);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nano-unlocker-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: var(--mono, monospace);
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nano-unlocker-tag:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.nano-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.nano-power-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nano-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: var(--panel-2, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  color: var(--fg, #e0e0e0);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.nano-chip-btn:hover {
+  background: var(--panel-3, rgba(255, 255, 255, 0.1));
+  border-color: var(--border-strong, rgba(255, 255, 255, 0.25));
+  transform: translateY(-1px);
+}
+
+.nano-google-chip {
+  border-color: rgba(66, 133, 244, 0.35);
+  background: rgba(66, 133, 244, 0.08);
+}
+
+.nano-google-chip:hover {
+  background: rgba(66, 133, 244, 0.16);
+  border-color: rgba(66, 133, 244, 0.55);
+}
+
+.nano-deepseek-chip {
+  border-color: rgba(77, 107, 254, 0.35);
+  background: rgba(77, 107, 254, 0.08);
+}
+
+.nano-deepseek-chip:hover {
+  background: rgba(77, 107, 254, 0.16);
+  border-color: rgba(77, 107, 254, 0.55);
+}
+
+.nano-remote-chip {
+  border-color: rgba(168, 85, 247, 0.35);
+  background: rgba(168, 85, 247, 0.08);
+}
+
+.nano-remote-chip:hover {
+  background: rgba(168, 85, 247, 0.16);
+  border-color: rgba(168, 85, 247, 0.55);
+}
+
+.nano-chip-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #4285f4;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}

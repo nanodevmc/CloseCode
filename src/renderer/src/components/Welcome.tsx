@@ -3,7 +3,7 @@ import type { ContextState, SettingsView } from '../../../shared/types'
 import { presentModel } from '../../../shared/modelNames'
 import { baseName, formatTokens } from '../utils'
 import { useT } from '../i18n'
-import { ArrowRightIcon, BookIcon, CompressIcon, LockIcon, UsersIcon } from './Icons'
+import { ArrowRightIcon, BookIcon, CompressIcon, LockIcon, ShieldIcon, UsersIcon } from './Icons'
 import { ProviderLogo, brandForProvider, type LogoBrand } from './ProviderLogo'
 
 interface WelcomeProps {
@@ -11,6 +11,9 @@ interface WelcomeProps {
   ready: boolean
   context: ContextState | null
   onOpenSettings: () => void
+  onOpenUnlocker?: () => void
+  onImportGoogle?: () => void
+  onAddDeepSeek?: () => void
 }
 
 function lineBreaks(text: string): ReactNode[] {
@@ -95,7 +98,10 @@ export function Welcome({
   settings,
   ready,
   context,
-  onOpenSettings
+  onOpenSettings,
+  onOpenUnlocker,
+  onImportGoogle,
+  onAddDeepSeek
 }: WelcomeProps): ReactNode {
   const { t, tc } = useT()
   const projectName = baseName(settings.activeProjectPath)
@@ -203,6 +209,66 @@ export function Welcome({
               {tc('unit.agent', settings.agents.length)}
             </span>
           )}
+        </div>
+
+        <div className="nano-power-box">
+          <div className="nano-power-header">
+            <span className="nano-power-title">⚡ Nano Power Pack</span>
+            <span
+              className="nano-unlocker-tag"
+              onClick={onOpenUnlocker}
+              role="button"
+              tabIndex={0}
+              title="Нажмите для открытия настроек AgyUnlocker (Ctrl+U)"
+            >
+              <span className="nano-dot" /> AgyUnlocker: 127.0.0.1:53129 (Active)
+            </span>
+          </div>
+          <div className="nano-power-actions">
+            {onImportGoogle && (
+              <button
+                type="button"
+                className="nano-chip-btn nano-google-chip"
+                onClick={onImportGoogle}
+                title="Подключить аккаунт Google из Antigravity без ввода ключей"
+              >
+                <ProviderLogo brand="google" size={15} />
+                <span>Google (Gemini Pro/Ultra)</span>
+                <span className="nano-chip-pill">1-Click</span>
+              </button>
+            )}
+            {onAddDeepSeek && (
+              <button
+                type="button"
+                className="nano-chip-btn nano-deepseek-chip"
+                onClick={onAddDeepSeek}
+                title="Добавить DeepSeek Chat & R1"
+              >
+                <ProviderLogo brand="deepseek" size={15} />
+                <span>DeepSeek (Chat & R1)</span>
+              </button>
+            )}
+            {onOpenUnlocker && (
+              <button
+                type="button"
+                className="nano-chip-btn"
+                onClick={onOpenUnlocker}
+                title="Настройки обхода блокировок и прокси"
+              >
+                <ShieldIcon size={14} />
+                <span>AgyUnlocker (Ctrl+U)</span>
+              </button>
+            )}
+            <a
+              href="http://localhost:4242"
+              target="_blank"
+              rel="noreferrer"
+              className="nano-chip-btn nano-remote-chip"
+              title="Открыть пульт управления в браузере или с телефона"
+            >
+              <span>📱 Remote Control :4242</span>
+            </a>
+          </div>
         </div>
 
         {!ready && (
